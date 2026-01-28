@@ -13,16 +13,16 @@ class AddEmployeeScreenState extends State<AddEmployeeScreen> {
   final departmentController = TextEditingController();
   final salaryController = TextEditingController();
 
-  void handleSubmit() {
+  void handleSubmit() async {
     Employee e = Employee(
-      id: EmployeeService.getAllEmployees().length + 1,
+      id: "",
       name: nameController.text,
       email: emailController.text,
       role: roleController.text,
       department: departmentController.text,
       salary: salaryController.text,
     );
-    EmployeeService.addEmployee(e);
+    await EmployeeService.addEmployee(e);
     Navigator.pop(context);
   }
 

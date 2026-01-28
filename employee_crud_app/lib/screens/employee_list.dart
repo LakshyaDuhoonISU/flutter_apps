@@ -9,19 +9,23 @@ class EmployeeListScreen extends StatefulWidget {
 class EmployeeListScreenState extends State<EmployeeListScreen> {
   List<Employee> employees = [];
 
-  void initState() {
-    super.initState();
-    setState(() {
-      employees = EmployeeService.getAllEmployees();
+  void loadEmployees() {
+    EmployeeService.getAllEmployees().then((value) {
+      setState(() {
+        employees = value;
+      });
     });
   }
 
-  void handleDelete(int id) {
-    EmployeeService.deleteEmployee(id);
-    setState(() {
-      employees = EmployeeService.getAllEmployees();
-    });
+  void initState() {
+    super.initState();
+    loadEmployees();
   }
+
+  void handleDelete(String id) async {
+      await EmployeeService.deleteEmployee(id);
+      loadEmployees();
+    }
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,11 +42,47 @@ class EmployeeListScreenState extends State<EmployeeListScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  IconButton(icon: Icon(Icons.visibility), onPressed: () {}),
-                  IconButton(icon: Icon(Icons.edit), onPressed: () {}),
-                  IconButton(icon: Icon(Icons.delete), onPressed: () {
-                    handleDelete(employee.id);
-                  }),
+                  IconButton(
+                    icon: Icon(Icons.visibility),
+                    onPressed: () async {
+                      await Navigator.pushNamed(
+                        context,
+                        '/view_employee',
+                        arguments: Employee(
+                          id: employee.id,
+                          name: employee.name,
+                          email: employee.email,
+                          role: employee.role,
+                          department: employee.department,
+                          salary: employee.salary,
+                        ),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: () async {
+                      await Navigator.pushNamed(
+                        context,
+                        '/edit_employee',
+                        arguments: Employee(
+                          id: employee.id,
+                          name: employee.name,
+                          email: employee.email,
+                          role: employee.role,
+                          department: employee.department,
+                          salary: employee.salary,
+                        ),
+                      );
+                      loadEmployees();
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () {
+                      handleDelete(employee.id);
+                    },
+                  ),
                 ],
               ),
             ),
@@ -51,12 +91,9 @@ class EmployeeListScreenState extends State<EmployeeListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () {
-          Navigator.pushNamed(context, '/add_employee').then((_) {
-            setState(() {
-              employees = EmployeeService.getAllEmployees();
-            }); 
-          });
+        onPressed: () async {
+          await Navigator.pushNamed(context, '/add_employee');
+          loadEmployees();
         },
       ),
     );
