@@ -43,8 +43,14 @@ class ListFlowerScreenState extends State<ListFlowerScreen> {
                     Navigator.of(context).pushNamed('/view-flower', arguments: flower);
                   },
                 ),
-                IconButton(icon: Icon(Icons.edit), onPressed: () {}),
-                IconButton(icon: Icon(Icons.delete), onPressed: () {}),
+                IconButton(icon: Icon(Icons.edit), onPressed: () async {
+                  await Navigator.of(context).pushNamed('/edit-flower', arguments: flower);
+                  loadFlowers();
+                }),
+                IconButton(icon: Icon(Icons.delete), onPressed: () async {
+                  await FlowerService.deleteFlower(flower.id);
+                  loadFlowers();
+                }),
               ],
             ),
           );

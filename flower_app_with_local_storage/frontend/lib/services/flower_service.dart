@@ -66,4 +66,43 @@ class FlowerService {
       throw Exception('Failed to load flowers');
     }
   }
+
+  static Future<Map<String, dynamic>> editFlowerWeb({
+    required id,
+    required name,
+    required description,
+    Uint8List? imageBytes,
+    Uint8List? pdfBytes,
+    required oldImageURL,
+    required oldPdfURL,
+  }) async {
+    String? imageUrl = oldImageURL;
+    String? pdfUrl = oldPdfURL;
+
+    if (imageBytes != null) {
+      imageUrl = await CloudinaryService.uploadImageBytesWeb(imageBytes);
+    }
+
+    if (pdfBytes != null) {
+      pdfUrl = await CloudinaryService.uploadPdfBytesWeb(pdfBytes);
+    }
+
+    final response = await http.put(
+      Uri.parse('$API_URL/$id'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'name': name,
+        'description': description,
+        'imageUrl': imageUrl ?? oldImageURL,
+        'pdfUrl': pdfUrl ?? oldPdfURL,
+      }),
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> deleteFlower(String id) async {
+    final response = await http.delete(Uri.parse('${API_URL}/$id'));
+    return jsonDecode(response.body);
+  }
 }
